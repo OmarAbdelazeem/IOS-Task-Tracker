@@ -12,6 +12,14 @@ struct ContentView: View {
                     )
                 }
 
+            DashboardView()
+                .tabItem {
+                    Label(
+                        "Dashboard",
+                        systemImage: "chart.bar.fill"
+                    )
+                }
+
             GoalsListView()
                 .tabItem {
                     Label(
