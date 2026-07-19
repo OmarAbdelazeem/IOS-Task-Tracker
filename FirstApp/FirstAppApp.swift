@@ -1,11 +1,5 @@
-//
-//  FirstAppApp.swift
-//  FirstApp
-//
-//  Created by Omar Abdelazeem on 16/07/2026.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct FirstAppApp: App {
@@ -13,5 +7,6 @@ struct FirstAppApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Goal.self)
     }
 }
