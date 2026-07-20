@@ -9,17 +9,22 @@ struct FirstAppApp: App {
     private let goalService: any GoalServicing
 
     init() {
-        let isRunningUITests =
-            ProcessInfo.processInfo.arguments.contains(
+        let processInfo = ProcessInfo.processInfo
+
+        let isRunningTests =
+            processInfo.arguments.contains(
                 "--ui-testing"
-            )
+            ) ||
+            processInfo.environment[
+                "XCTestConfigurationFilePath"
+            ] != nil
 
         let schema = Schema(
             versionedSchema: GoalSchemaV2.self
         )
 
         let configuration = ModelConfiguration(
-            isStoredInMemoryOnly: isRunningUITests
+            isStoredInMemoryOnly: isRunningTests
         )
 
         do {
