@@ -125,6 +125,7 @@ struct GoalDetailView: View {
                     "Goal name",
                     text: $draftTitle
                 )
+                .accessibilityIdentifier("goalDetailTitleField")
 
                 Stepper(
                     "Target: \(draftTarget)",
@@ -161,6 +162,7 @@ struct GoalDetailView: View {
                             systemImage: "plus"
                         )
                     }
+                    .accessibilityIdentifier("goalDetailIncreaseButton")
                 }
             }
         }
@@ -186,6 +188,7 @@ struct GoalDetailView: View {
                     trimmedTitle.isEmpty ||
                     !hasChanges
                 )
+                .accessibilityIdentifier("saveGoalButton")
             }
         }
         .alert(

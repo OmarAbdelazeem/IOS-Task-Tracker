@@ -179,6 +179,7 @@ struct GoalsListView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityIdentifier("addGoalButton")
                     .accessibilityLabel("Add goal")
                 }
             }

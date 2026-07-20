@@ -24,12 +24,14 @@ struct AddGoalView: View {
                         "Goal name",
                         text: $title
                     )
+                    .accessibilityIdentifier("goalTitleField")
 
                     Stepper(
                         "Target: \(target)",
                         value: $target,
                         in: 1...20
                     )
+                    .accessibilityIdentifier("goalTargetStepper")
                 }
             }
             .navigationTitle("New Goal")
@@ -41,6 +43,7 @@ struct AddGoalView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("cancelAddGoalButton")
                 }
 
                 ToolbarItem(
@@ -50,6 +53,7 @@ struct AddGoalView: View {
                         addGoal()
                     }
                     .disabled(trimmedTitle.isEmpty)
+                    .accessibilityIdentifier("confirmAddGoalButton")
                 }
             }
         }
