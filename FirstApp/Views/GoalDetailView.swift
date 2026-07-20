@@ -3,25 +3,27 @@ import SwiftData
 
 struct GoalDetailView: View {
     let goal: Goal
-    let repository: any GoalRepository
+    let service: any GoalServicing
 
     @State private var draft: GoalDraft
 
     @Environment(\.dismiss)
     private var dismiss
 
+    @State private var isSaving = false
     @State private var isShowingSaveError = false
     @State private var saveErrorMessage = ""
 
     init(
         goal: Goal,
-        repository: any GoalRepository
+        service: any GoalServicing
     ) {
         self.goal = goal
-        self.repository = repository
+        self.service = service
 
         _draft = State(
-            initialValue: GoalDraft(goal: goal)
+            initialValue:
+                GoalDraft(goal: goal)
         )
     }
 
@@ -44,17 +46,21 @@ struct GoalDetailView: View {
                 Button("Cancel") {
                     dismiss()
                 }
+                .disabled(isSaving)
             }
 
             ToolbarItem(
                 placement: .confirmationAction
             ) {
                 Button("Save") {
-                    saveAndClose()
+                    Task {
+                        await saveAndClose()
+                    }
                 }
                 .disabled(
                     !draft.isValid ||
-                    !hasChanges
+                    !hasChanges ||
+                    isSaving
                 )
                 .accessibilityIdentifier(
                     "saveGoalButton"
@@ -73,9 +79,14 @@ struct GoalDetailView: View {
         }
     }
 
-    private func saveAndClose() {
+    private func saveAndClose() async {
+        isSaving = true
+        defer {
+            isSaving = false
+        }
+
         do {
-            try repository.update(
+            try await service.update(
                 goal,
                 with: draft
             )
@@ -98,7 +109,8 @@ struct GoalDetailView: View {
                 count: 4,
                 target: 10
             ),
-            repository: PreviewGoalRepository()
+            service:
+                PreviewGoalService()
         )
     }
     .modelContainer(

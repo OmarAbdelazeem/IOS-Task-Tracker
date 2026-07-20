@@ -5,20 +5,42 @@ struct GoalDraft: Equatable {
     var target: Int
     var count: Int
 
+    var reminderEnabled: Bool
+    var reminderTime: Date
+
     init(
         title: String = "",
         target: Int = 5,
-        count: Int = 0
+        count: Int = 0,
+        reminderEnabled: Bool = false,
+        reminderTime: Date = GoalDraft.defaultReminderTime
     ) {
         self.title = title
         self.target = target
         self.count = count
+        self.reminderEnabled = reminderEnabled
+        self.reminderTime = reminderTime
     }
 
     init(goal: Goal) {
         title = goal.title
         target = goal.target
         count = goal.count
+
+        reminderEnabled = goal.reminderTime != nil
+
+        reminderTime =
+            goal.reminderTime
+            ?? GoalDraft.defaultReminderTime
+    }
+
+    static var defaultReminderTime: Date {
+        Calendar.current.date(
+            bySettingHour: 9,
+            minute: 0,
+            second: 0,
+            of: Date()
+        ) ?? Date()
     }
 
     var trimmedTitle: String {
@@ -86,7 +108,11 @@ struct GoalDraft: Equatable {
         return Goal(
             title: trimmedTitle,
             count: count,
-            target: target
+            target: target,
+            reminderTime:
+                reminderEnabled
+                ? reminderTime
+                : nil
         )
     }
 
@@ -99,6 +125,11 @@ struct GoalDraft: Equatable {
         goal.title = trimmedTitle
         goal.target = target
         goal.count = count
+
+        goal.reminderTime =
+            reminderEnabled
+            ? reminderTime
+            : nil
 
         return true
     }

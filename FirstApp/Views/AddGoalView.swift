@@ -1,12 +1,20 @@
 import SwiftUI
 
 struct AddGoalView: View {
-    @State private var draft = GoalDraft()
+    @State private var draft =
+        GoalDraft()
 
-    let onAdd: (Goal) -> Void
+    let service: any GoalServicing
 
     @Environment(\.dismiss)
     private var dismiss
+
+    @State private var isSaving = false
+
+    @State private var isShowingError =
+        false
+
+    @State private var errorMessage = ""
 
     var body: some View {
         NavigationStack {
@@ -15,46 +23,78 @@ struct AddGoalView: View {
                 mode: .create
             )
             .navigationTitle("New Goal")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(
+                .inline
+            )
             .toolbar {
                 ToolbarItem(
-                    placement: .cancellationAction
+                    placement:
+                        .cancellationAction
                 ) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .disabled(isSaving)
                     .accessibilityIdentifier(
                         "cancelAddGoalButton"
                     )
                 }
 
                 ToolbarItem(
-                    placement: .confirmationAction
+                    placement:
+                        .confirmationAction
                 ) {
                     Button("Add") {
-                        addGoal()
+                        Task {
+                            await addGoal()
+                        }
                     }
-                    .disabled(!draft.isValid)
+                    .disabled(
+                        !draft.isValid ||
+                        isSaving
+                    )
                     .accessibilityIdentifier(
                         "confirmAddGoalButton"
                     )
                 }
             }
+            .alert(
+                "Couldn’t Add Goal",
+                isPresented:
+                    $isShowingError
+            ) {
+                Button("OK", role: .cancel) {
+                    // Dismiss the alert.
+                }
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
 
-    private func addGoal() {
-        guard let newGoal = draft.makeGoal() else {
-            return
+    private func addGoal() async {
+        isSaving = true
+        defer {
+            isSaving = false
         }
 
-        onAdd(newGoal)
-        dismiss()
+        do {
+            try await service.add(
+                draft: draft
+            )
+
+            dismiss()
+        } catch {
+            errorMessage =
+                error.localizedDescription
+
+            isShowingError = true
+        }
     }
 }
 
 #Preview {
-    AddGoalView { goal in
-        print("Added \(goal.title)")
-    }
+    AddGoalView(
+        service: PreviewGoalService()
+    )
 }

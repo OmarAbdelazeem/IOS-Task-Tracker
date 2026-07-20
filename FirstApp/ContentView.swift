@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    let goalRepository: any GoalRepository
+    let goalService: any GoalServicing
 
     var body: some View {
         TabView {
@@ -23,7 +23,7 @@ struct ContentView: View {
                 }
 
             GoalsListView(
-                repository: goalRepository
+                service: goalService
             )
             .tabItem {
                 Label(
@@ -37,7 +37,7 @@ struct ContentView: View {
 
 #Preview {
     ContentView(
-        goalRepository: PreviewGoalRepository()
+        goalService: PreviewGoalService()
     )
     .modelContainer(
         for: Goal.self,

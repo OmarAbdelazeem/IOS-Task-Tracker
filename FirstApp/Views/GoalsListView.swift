@@ -23,7 +23,7 @@ private enum GoalSortOption: String, CaseIterable, Identifiable {
 }
 
 struct GoalsListView: View {
-    let repository: any GoalRepository
+    let service: any GoalServicing
 
     @Query(sort: \Goal.title)
     private var goals: [Goal]
@@ -123,7 +123,7 @@ struct GoalsListView: View {
                             NavigationLink {
                                 GoalDetailView(
                                     goal: goal,
-                                    repository: repository
+                                    service: service
                                 )
                             } label: {
                                 GoalRowView(goal: goal)
@@ -184,9 +184,9 @@ struct GoalsListView: View {
                 }
             }
             .sheet(isPresented: $isShowingAddGoal) {
-                AddGoalView { newGoal in
-                    addGoal(newGoal)
-                }
+                AddGoalView(
+                    service: service
+                )
             }
             .alert(
                 "Storage Error",
@@ -201,25 +201,22 @@ struct GoalsListView: View {
         }
     }
 
-    private func addGoal(_ goal: Goal) {
-        do {
-            try repository.add(goal)
-        } catch {
-            showStorageError(error)
-        }
-    }
-
     private func deleteGoals(
         at offsets: IndexSet
     ) {
-        let goalsToDelete = offsets.map { index in
-            visibleGoals[index]
-        }
+        let goalsToDelete =
+            offsets.map { index in
+                visibleGoals[index]
+            }
 
-        do {
-            try repository.delete(goalsToDelete)
-        } catch {
-            showStorageError(error)
+        Task {
+            do {
+                try await service.delete(
+                    goalsToDelete
+                )
+            } catch {
+                showStorageError(error)
+            }
         }
     }
 
@@ -235,7 +232,7 @@ struct GoalsListView: View {
 
 #Preview {
     GoalsListView(
-        repository: PreviewGoalRepository()
+        service: PreviewGoalService()
     )
         .modelContainer(
             for: Goal.self,

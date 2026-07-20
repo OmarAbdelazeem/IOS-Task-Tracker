@@ -6,7 +6,7 @@ import Foundation
 @MainActor
 struct FirstAppApp: App {
     private let modelContainer: ModelContainer
-    private let goalRepository: any GoalRepository
+    private let goalService: any GoalServicing
 
     init() {
         let isRunningUITests =
@@ -26,8 +26,19 @@ struct FirstAppApp: App {
 
             modelContainer = container
 
-            goalRepository = SwiftDataGoalRepository(
-                modelContext: container.mainContext
+            let repository =
+                SwiftDataGoalRepository(
+                    modelContext:
+                        container.mainContext
+                )
+
+            let reminderScheduler =
+                UserNotificationGoalReminderScheduler()
+
+            goalService = DefaultGoalService(
+                repository: repository,
+                reminderScheduler:
+                    reminderScheduler
             )
         } catch {
             fatalError(
@@ -39,7 +50,7 @@ struct FirstAppApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(
-                goalRepository: goalRepository
+                goalService: goalService
             )
         }
         .modelContainer(modelContainer)

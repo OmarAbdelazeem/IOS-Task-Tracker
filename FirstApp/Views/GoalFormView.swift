@@ -31,6 +31,7 @@ struct GoalFormView: View {
             }
 
             detailsSection
+            reminderSection
 
             if mode.showsProgress {
                 progressSection
@@ -161,6 +162,35 @@ struct GoalFormView: View {
                     decreaseButton
                     increaseButton
                 }
+            }
+        }
+    }
+
+    private var reminderSection: some View {
+        Section("Reminder") {
+            Toggle(
+                "Daily reminder",
+                isOn: $draft.reminderEnabled
+            )
+            .accessibilityIdentifier(
+                "goalReminderToggle"
+            )
+
+            if draft.reminderEnabled {
+                DatePicker(
+                    "Reminder time",
+                    selection: $draft.reminderTime,
+                    displayedComponents: .hourAndMinute
+                )
+                .accessibilityIdentifier(
+                    "goalReminderTimePicker"
+                )
+
+                Text(
+                    "The reminder repeats every day at the selected time."
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             }
         }
     }

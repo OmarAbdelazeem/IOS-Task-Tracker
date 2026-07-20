@@ -1,3 +1,4 @@
+import Foundation
 import SwiftData
 
 @Model
@@ -6,14 +7,22 @@ final class Goal {
     var count: Int
     var target: Int
 
+    var reminderTime: Date?
+    var notificationIdentifier: String?
+
     init(
         title: String,
         count: Int = 0,
-        target: Int
+        target: Int,
+        reminderTime: Date? = nil,
+        notificationIdentifier: String? = nil
     ) {
         self.title = title
         self.count = count
         self.target = target
+        self.reminderTime = reminderTime
+        self.notificationIdentifier =
+            notificationIdentifier
     }
 
     var progress: Double {
