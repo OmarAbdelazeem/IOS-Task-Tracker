@@ -10,21 +10,29 @@ struct FirstAppApp: App {
 
     init() {
         let processInfo = ProcessInfo.processInfo
+        let arguments = processInfo.arguments
 
         let isRunningTests =
-            processInfo.arguments.contains(
+            arguments.contains(
                 "--ui-testing"
             ) ||
             processInfo.environment[
                 "XCTestConfigurationFilePath"
             ] != nil
 
+        let isPerformanceTesting =
+            arguments.contains(
+                "--performance-testing"
+            )
+
         let schema = Schema(
             versionedSchema: GoalSchemaV2.self
         )
 
         let configuration = ModelConfiguration(
-            isStoredInMemoryOnly: isRunningTests
+            isStoredInMemoryOnly:
+                isRunningTests ||
+                isPerformanceTesting
         )
 
         do {
@@ -33,6 +41,15 @@ struct FirstAppApp: App {
                 migrationPlan: GoalMigrationPlan.self,
                 configurations: [configuration]
             )
+
+#if DEBUG
+            if isPerformanceTesting {
+                try PerformanceDataSeeder.seedGoals(
+                    count: 5_000,
+                    into: container.mainContext
+                )
+            }
+#endif
 
             modelContainer = container
 

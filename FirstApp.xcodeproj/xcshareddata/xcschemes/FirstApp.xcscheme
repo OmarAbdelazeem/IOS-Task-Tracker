@@ -77,9 +77,15 @@
             ReferencedContainer = "container:FirstApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "--performance-testing"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -94,6 +100,12 @@
             ReferencedContainer = "container:FirstApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "--performance-testing"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

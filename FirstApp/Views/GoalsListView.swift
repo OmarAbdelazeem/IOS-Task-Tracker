@@ -1,48 +1,17 @@
 import SwiftUI
 import SwiftData
 import Foundation
+import os
 
-private enum GoalFilter: CaseIterable, Identifiable {
-    case all
-    case active
-    case completed
-
-    var id: Self {
-        self
-    }
-
-    var title: LocalizedStringResource {
-        switch self {
-        case .all:
-            return "All"
-        case .active:
-            return "Active"
-        case .completed:
-            return "Completed"
-        }
-    }
-}
-
-private enum GoalSortOption: CaseIterable, Identifiable {
-    case name
-    case progress
-    case target
-
-    var id: Self {
-        self
-    }
-
-    var title: LocalizedStringResource {
-        switch self {
-        case .name:
-            return "Name"
-        case .progress:
-            return "Progress"
-        case .target:
-            return "Target"
-        }
-    }
-}
+#if DEBUG
+private let goalsListSignposter =
+    OSSignposter(
+        subsystem:
+            Bundle.main.bundleIdentifier
+            ?? "FirstApp",
+        category: .pointsOfInterest
+    )
+#endif
 
 struct GoalsListView: View {
     let service: any GoalServicing
@@ -52,6 +21,7 @@ struct GoalsListView: View {
 
     @State private var isShowingAddGoal = false
     @State private var searchText = ""
+    @State private var debouncedSearchText = ""
     @State private var selectedFilter = GoalFilter.all
     @State private var selectedSort = GoalSortOption.name
 
@@ -59,65 +29,27 @@ struct GoalsListView: View {
     @State private var storageErrorMessage = ""
 
     private var visibleGoals: [Goal] {
-        let trimmedSearchText = searchText.trimmingCharacters(
-            in: .whitespacesAndNewlines
+#if DEBUG
+        let intervalState =
+            goalsListSignposter.beginInterval(
+                "Build Visible Goals"
+            )
+
+        defer {
+            goalsListSignposter.endInterval(
+                "Build Visible Goals",
+                intervalState
+            )
+        }
+#endif
+
+        return GoalListProcessor(
+            goals: goals,
+            searchText: debouncedSearchText,
+            filter: selectedFilter,
+            sort: selectedSort
         )
-
-        let searchedGoals: [Goal]
-
-        if trimmedSearchText.isEmpty {
-            searchedGoals = goals
-        } else {
-            searchedGoals = goals.filter { goal in
-                goal.title.localizedCaseInsensitiveContains(
-                    trimmedSearchText
-                )
-            }
-        }
-
-        let filteredGoals = searchedGoals.filter { goal in
-            switch selectedFilter {
-            case .all:
-                return true
-
-            case .active:
-                return !goal.isCompleted
-
-            case .completed:
-                return goal.isCompleted
-            }
-        }
-
-        switch selectedSort {
-        case .name:
-            return filteredGoals.sorted { first, second in
-                first.title.localizedCaseInsensitiveCompare(
-                    second.title
-                ) == .orderedAscending
-            }
-
-        case .progress:
-            return filteredGoals.sorted { first, second in
-                if first.progress == second.progress {
-                    return first.title.localizedCaseInsensitiveCompare(
-                        second.title
-                    ) == .orderedAscending
-                }
-
-                return first.progress > second.progress
-            }
-
-        case .target:
-            return filteredGoals.sorted { first, second in
-                if first.target == second.target {
-                    return first.title.localizedCaseInsensitiveCompare(
-                        second.title
-                    ) == .orderedAscending
-                }
-
-                return first.target < second.target
-            }
-        }
+        .results
     }
 
     var body: some View {
@@ -161,6 +93,23 @@ struct GoalsListView: View {
                 text: $searchText,
                 prompt: "Search goals"
             )
+            .task(id: searchText) {
+                if searchText.isEmpty {
+                    debouncedSearchText = ""
+                    return
+                }
+
+                do {
+                    try await Task.sleep(
+                        for: .milliseconds(250)
+                    )
+                } catch {
+                    // A newer search cancelled this task.
+                    return
+                }
+
+                debouncedSearchText = searchText
+            }
             .toolbar {
                 ToolbarItemGroup(
                     placement: .primaryAction

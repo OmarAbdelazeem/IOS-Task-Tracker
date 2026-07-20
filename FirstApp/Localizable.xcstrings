@@ -84,6 +84,7 @@
     "Save" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "حفظ" } } } },
     "Search goals" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "البحث في الأهداف" } } } },
     "Settings" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "الإعدادات" } } } },
+    "Showing %lld of %lld goals" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "عرض %lld من أصل %lld هدفًا" } } } },
     "Sort" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "ترتيب" } } } },
     "Start tapping!" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "ابدأ بالنقر!" } } } },
     "Status" : { "localizations" : { "ar" : { "stringUnit" : { "state" : "translated", "value" : "الحالة" } } } },

@@ -13,6 +13,10 @@ struct DashboardView: View {
         GoalStatistics(goals: goals)
     }
 
+    private var dashboardGoals: [Goal] {
+        Array(goals.prefix(10))
+    }
+
     private var statusData: [GoalStatusData] {
         [
             GoalStatusData(
@@ -180,7 +184,7 @@ struct DashboardView: View {
             Text("Individual Progress")
                 .font(.headline)
 
-            ForEach(goals) { goal in
+            ForEach(dashboardGoals) { goal in
                 VStack(alignment: .leading, spacing: 8) {
                     ViewThatFits(in: .horizontal) {
                         HStack {
@@ -215,6 +219,15 @@ struct DashboardView: View {
 
                     ProgressView(value: goal.progress)
                 }
+            }
+
+            if goals.count > dashboardGoals.count {
+                Text(
+                    "Showing \(dashboardGoals.count) of \(goals.count) goals"
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
             }
         }
         .padding()
