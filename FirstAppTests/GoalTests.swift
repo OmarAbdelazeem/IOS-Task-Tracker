@@ -118,3 +118,92 @@ struct GoalStatisticsTests {
         #expect(statistics.averageProgress == 53)
     }
 }
+
+struct GoalDraftTests {
+    @Test("Rejects an empty title")
+    func rejectsEmptyTitle() {
+        let draft = GoalDraft(
+            title: "   ",
+            target: 5
+        )
+
+        #expect(!draft.isValid)
+        #expect(
+            draft.validationMessage ==
+            "Enter a goal name."
+        )
+        #expect(draft.makeGoal() == nil)
+    }
+
+    @Test("Creates a trimmed goal")
+    func createsTrimmedGoal() {
+        let draft = GoalDraft(
+            title: "  Study Swift  ",
+            target: 8,
+            count: 2
+        )
+
+        let goal = draft.makeGoal()
+
+        #expect(goal != nil)
+        #expect(goal?.title == "Study Swift")
+        #expect(goal?.target == 8)
+        #expect(goal?.count == 2)
+    }
+
+    @Test("Copies values from an existing goal")
+    func copiesGoalValues() {
+        let goal = Goal(
+            title: "Exercise",
+            count: 3,
+            target: 5
+        )
+
+        let draft = GoalDraft(goal: goal)
+
+        #expect(draft.title == "Exercise")
+        #expect(draft.count == 3)
+        #expect(draft.target == 5)
+    }
+
+    @Test("Applies changes to an existing goal")
+    func appliesChanges() {
+        let goal = Goal(
+            title: "Read",
+            count: 1,
+            target: 5
+        )
+
+        let draft = GoalDraft(
+            title: "Read Swift",
+            target: 10,
+            count: 4
+        )
+
+        let didApply = draft.apply(to: goal)
+
+        #expect(didApply)
+        #expect(goal.title == "Read Swift")
+        #expect(goal.target == 10)
+        #expect(goal.count == 4)
+    }
+
+    @Test("Calculates draft progress")
+    func calculatesDraftProgress() {
+        let draft = GoalDraft(
+            title: "Walk",
+            target: 10,
+            count: 4
+        )
+
+        #expect(
+            abs(draft.progress - 0.4) <
+            0.0001
+        )
+        #expect(!draft.isCompleted)
+        #expect(
+            draft.statusMessage ==
+            "6 remaining"
+        )
+    }
+}

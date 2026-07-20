@@ -1,39 +1,19 @@
 import SwiftUI
-import Foundation
 
 struct AddGoalView: View {
-    @State private var title = ""
-    @State private var target = 5
+    @State private var draft = GoalDraft()
 
     let onAdd: (Goal) -> Void
 
     @Environment(\.dismiss)
     private var dismiss
 
-    private var trimmedTitle: String {
-        title.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-    }
-
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Goal") {
-                    TextField(
-                        "Goal name",
-                        text: $title
-                    )
-                    .accessibilityIdentifier("goalTitleField")
-
-                    Stepper(
-                        "Target: \(target)",
-                        value: $target,
-                        in: 1...20
-                    )
-                    .accessibilityIdentifier("goalTargetStepper")
-                }
-            }
+            GoalFormView(
+                draft: $draft,
+                mode: .create
+            )
             .navigationTitle("New Goal")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -43,7 +23,9 @@ struct AddGoalView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .accessibilityIdentifier("cancelAddGoalButton")
+                    .accessibilityIdentifier(
+                        "cancelAddGoalButton"
+                    )
                 }
 
                 ToolbarItem(
@@ -52,18 +34,19 @@ struct AddGoalView: View {
                     Button("Add") {
                         addGoal()
                     }
-                    .disabled(trimmedTitle.isEmpty)
-                    .accessibilityIdentifier("confirmAddGoalButton")
+                    .disabled(!draft.isValid)
+                    .accessibilityIdentifier(
+                        "confirmAddGoalButton"
+                    )
                 }
             }
         }
     }
 
     private func addGoal() {
-        let newGoal = Goal(
-            title: trimmedTitle,
-            target: target
-        )
+        guard let newGoal = draft.makeGoal() else {
+            return
+        }
 
         onAdd(newGoal)
         dismiss()
