@@ -6,14 +6,18 @@ struct GoalSummaryView: View {
     let target: Int
 
     private var isTargetReached: Bool {
-        count >= target
+        target > 0 && count >= target
     }
 
     private var progress: Double {
-        let currentValue = Double(count)
-        let targetValue = Double(target)
+        guard target > 0 else {
+            return 0
+        }
 
-        return min(currentValue / targetValue, 1.0)
+        return min(
+            Double(count) / Double(target),
+            1.0
+        )
     }
 
     private var statusMessage: String {
@@ -26,6 +30,14 @@ struct GoalSummaryView: View {
         } else {
             return "Double target reached!"
         }
+    }
+
+    private var accessibilityStatus: String {
+        if isTargetReached {
+            return "Completed"
+        }
+
+        return "\(max(target - count, 0)) remaining"
     }
 
     var body: some View {
@@ -43,19 +55,24 @@ struct GoalSummaryView: View {
             )
             .scaleEffect(isTargetReached ? 1.1 : 1.0)
             .animation(.snappy, value: isTargetReached)
+            .accessibilityHidden(true)
 
             Text(title)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
+                .fixedSize(
+                    horizontal: false,
+                    vertical: true
+                )
 
             VStack(spacing: 2) {
                 Text("\(count)")
                     .font(
                         .system(
-                            size: 72,
-                            weight: .bold,
-                            design: .rounded
+                            .largeTitle,
+                            design: .rounded,
+                            weight: .bold
                         )
                     )
                     .monospacedDigit()
@@ -75,35 +92,61 @@ struct GoalSummaryView: View {
             ProgressView(value: progress)
                 .frame(maxWidth: 300)
 
-            Text(statusMessage)
-                .font(.headline)
-                .foregroundStyle(
-                    isTargetReached
-                        ? Color.green
-                        : Color.primary
+            HStack(spacing: 8) {
+                Image(
+                    systemName: isTargetReached
+                        ? "checkmark.circle.fill"
+                        : "hourglass"
                 )
-                .animation(
-                    .easeInOut,
-                    value: isTargetReached
-                )
+
+                Text(statusMessage)
+            }
+            .font(.headline)
+            .foregroundStyle(
+                isTargetReached
+                    ? Color.green
+                    : Color.primary
+            )
+            .animation(
+                .easeInOut,
+                value: isTargetReached
+            )
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(
+            "\(count) of \(target) taps. \(accessibilityStatus)"
+        )
     }
 }
 
-#Preview("In Progress") {
+#Preview("Normal") {
     GoalSummaryView(
-        title: "Reading Goal",
+        title: "Study iOS",
         count: 3,
         target: 8
     )
     .padding()
 }
 
-#Preview("Target Reached") {
+#Preview("Accessibility Text") {
+    ScrollView {
+        GoalSummaryView(
+            title: "A Goal With a Much Longer Title",
+            count: 3,
+            target: 8
+        )
+        .padding()
+    }
+    .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Dark Mode") {
     GoalSummaryView(
-        title: "Exercise Goal",
-        count: 10,
-        target: 10
+        title: "Study iOS",
+        count: 8,
+        target: 8
     )
     .padding()
+    .preferredColorScheme(.dark)
 }

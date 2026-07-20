@@ -15,23 +15,26 @@ struct TrackerView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 22) {
-                GoalSummaryView(
-                    title: appTitle,
-                    count: tapCount,
-                    target: targetCount
-                )
+            ScrollView {
+                VStack(spacing: 22) {
+                    GoalSummaryView(
+                        title: appTitle,
+                        count: tapCount,
+                        target: targetCount
+                    )
 
-                CounterControlsView(
-                    count: tapCount,
-                    onDecrease: decreaseCount,
-                    onIncrease: increaseCount,
-                    onResetRequest: {
-                        isShowingResetAlert = true
-                    }
-                )
+                    CounterControlsView(
+                        count: tapCount,
+                        onDecrease: decreaseCount,
+                        onIncrease: increaseCount,
+                        onResetRequest: {
+                            isShowingResetAlert = true
+                        }
+                    )
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
             }
-            .padding()
             .navigationTitle("Goal Tracker")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

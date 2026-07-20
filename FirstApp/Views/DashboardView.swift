@@ -6,6 +6,9 @@ struct DashboardView: View {
     @Query(sort: \Goal.title)
     private var goals: [Goal]
 
+    @Environment(\.dynamicTypeSize)
+    private var dynamicTypeSize
+
     private var statistics: GoalStatistics {
         GoalStatistics(goals: goals)
     }
@@ -20,6 +23,19 @@ struct DashboardView: View {
                 name: "Completed",
                 count: statistics.completed
             )
+        ]
+    }
+
+    private var dashboardColumns: [GridItem] {
+        if dynamicTypeSize.isAccessibilitySize {
+            return [
+                GridItem(.flexible())
+            ]
+        }
+
+        return [
+            GridItem(.flexible()),
+            GridItem(.flexible())
         ]
     }
 
@@ -53,10 +69,7 @@ struct DashboardView: View {
 
     private var summaryGrid: some View {
         LazyVGrid(
-            columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ],
+            columns: dashboardColumns,
             spacing: 16
         ) {
             DashboardCard(
@@ -164,18 +177,35 @@ struct DashboardView: View {
 
             ForEach(goals) { goal in
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(goal.title)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            Text(goal.title)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
 
-                        Spacer()
+                            Spacer()
 
-                        Text(
-                            "\(goal.count) of \(goal.target)"
-                        )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                            Text(
+                                "\(goal.count) of \(goal.target)"
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
+
+                        VStack(
+                            alignment: .leading,
+                            spacing: 4
+                        ) {
+                            Text(goal.title)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+
+                            Text(
+                                "\(goal.count) of \(goal.target)"
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
                     }
 
                     ProgressView(value: goal.progress)
@@ -220,6 +250,11 @@ private struct DashboardCard: View {
             Text(title)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(
+                    horizontal: false,
+                    vertical: true
+                )
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
@@ -232,6 +267,24 @@ private struct DashboardCard: View {
 
 #Preview {
     DashboardView()
+        .modelContainer(
+            for: Goal.self,
+            inMemory: true
+        )
+}
+
+#Preview("Accessibility Text") {
+    DashboardView()
+        .dynamicTypeSize(.accessibility3)
+        .modelContainer(
+            for: Goal.self,
+            inMemory: true
+        )
+}
+
+#Preview("Dark Mode") {
+    DashboardView()
+        .preferredColorScheme(.dark)
         .modelContainer(
             for: Goal.self,
             inMemory: true

@@ -1,7 +1,16 @@
 import SwiftUI
+import SwiftData
 
 struct GoalRowView: View {
     let goal: Goal
+
+    private var accessibilityStatus: String {
+        if goal.isCompleted {
+            return "Completed"
+        }
+
+        return "\(max(goal.target - goal.count, 0)) remaining"
+    }
 
     var body: some View {
         HStack(spacing: 14) {
@@ -20,6 +29,10 @@ struct GoalRowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(goal.title)
                     .font(.headline)
+                    .fixedSize(
+                        horizontal: false,
+                        vertical: true
+                    )
 
                 ProgressView(value: goal.progress)
 
@@ -29,7 +42,29 @@ struct GoalRowView: View {
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(goal.title)
+        .accessibilityValue(
+            "\(goal.count) of \(goal.target). \(accessibilityStatus)"
+        )
     }
+}
+
+#Preview("Accessibility Text") {
+    List {
+        GoalRowView(
+            goal: Goal(
+                title: "Finish the SwiftUI accessibility course",
+                count: 3,
+                target: 10
+            )
+        )
+    }
+    .dynamicTypeSize(.accessibility3)
+    .modelContainer(
+        for: Goal.self,
+        inMemory: true
+    )
 }
 
 #Preview("In Progress") {
