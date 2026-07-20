@@ -3,20 +3,45 @@ import SwiftData
 import Foundation
 
 @main
+@MainActor
 struct FirstAppApp: App {
-    private var isRunningUITests: Bool {
-        ProcessInfo.processInfo.arguments.contains(
-            "--ui-testing"
+    private let modelContainer: ModelContainer
+    private let goalRepository: any GoalRepository
+
+    init() {
+        let isRunningUITests =
+            ProcessInfo.processInfo.arguments.contains(
+                "--ui-testing"
+            )
+
+        let configuration = ModelConfiguration(
+            isStoredInMemoryOnly: isRunningUITests
         )
+
+        do {
+            let container = try ModelContainer(
+                for: Goal.self,
+                configurations: configuration
+            )
+
+            modelContainer = container
+
+            goalRepository = SwiftDataGoalRepository(
+                modelContext: container.mainContext
+            )
+        } catch {
+            fatalError(
+                "Could not create SwiftData container: \(error)"
+            )
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                goalRepository: goalRepository
+            )
         }
-        .modelContainer(
-            for: Goal.self,
-            inMemory: isRunningUITests
-        )
+        .modelContainer(modelContainer)
     }
 }

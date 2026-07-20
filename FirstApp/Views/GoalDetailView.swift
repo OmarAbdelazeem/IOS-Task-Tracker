@@ -3,11 +3,9 @@ import SwiftData
 
 struct GoalDetailView: View {
     let goal: Goal
+    let repository: any GoalRepository
 
     @State private var draft: GoalDraft
-
-    @Environment(\.modelContext)
-    private var modelContext
 
     @Environment(\.dismiss)
     private var dismiss
@@ -15,8 +13,12 @@ struct GoalDetailView: View {
     @State private var isShowingSaveError = false
     @State private var saveErrorMessage = ""
 
-    init(goal: Goal) {
+    init(
+        goal: Goal,
+        repository: any GoalRepository
+    ) {
         self.goal = goal
+        self.repository = repository
 
         _draft = State(
             initialValue: GoalDraft(goal: goal)
@@ -72,19 +74,14 @@ struct GoalDetailView: View {
     }
 
     private func saveAndClose() {
-        guard draft.apply(to: goal) else {
-            return
-        }
-
         do {
-            if modelContext.hasChanges {
-                try modelContext.save()
-            }
+            try repository.update(
+                goal,
+                with: draft
+            )
 
             dismiss()
         } catch {
-            modelContext.rollback()
-
             saveErrorMessage =
                 error.localizedDescription
 
@@ -100,7 +97,8 @@ struct GoalDetailView: View {
                 title: "Study iOS",
                 count: 4,
                 target: 10
-            )
+            ),
+            repository: PreviewGoalRepository()
         )
     }
     .modelContainer(

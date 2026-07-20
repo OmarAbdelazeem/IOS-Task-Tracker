@@ -23,13 +23,10 @@ private enum GoalSortOption: String, CaseIterable, Identifiable {
 }
 
 struct GoalsListView: View {
+    let repository: any GoalRepository
+
     @Query(sort: \Goal.title)
     private var goals: [Goal]
-
-    @Environment(\.modelContext)
-    private var modelContext
-
-
 
     @State private var isShowingAddGoal = false
     @State private var searchText = ""
@@ -124,7 +121,10 @@ struct GoalsListView: View {
                     List {
                         ForEach(visibleGoals) { goal in
                             NavigationLink {
-                                GoalDetailView(goal: goal)
+                                GoalDetailView(
+                                    goal: goal,
+                                    repository: repository
+                                )
                             } label: {
                                 GoalRowView(goal: goal)
                             }
@@ -202,8 +202,11 @@ struct GoalsListView: View {
     }
 
     private func addGoal(_ goal: Goal) {
-        modelContext.insert(goal)
-        saveChanges()
+        do {
+            try repository.add(goal)
+        } catch {
+            showStorageError(error)
+        }
     }
 
     private func deleteGoals(
@@ -213,31 +216,27 @@ struct GoalsListView: View {
             visibleGoals[index]
         }
 
-        for goal in goalsToDelete {
-            modelContext.delete(goal)
+        do {
+            try repository.delete(goalsToDelete)
+        } catch {
+            showStorageError(error)
         }
-
-        saveChanges()
     }
 
-    private func saveChanges() {
-        do {
-            if modelContext.hasChanges {
-                try modelContext.save()
-            }
-        } catch {
-            modelContext.rollback()
+    private func showStorageError(
+        _ error: Error
+    ) {
+        storageErrorMessage =
+            error.localizedDescription
 
-            storageErrorMessage =
-                error.localizedDescription
-
-            isShowingStorageError = true
-        }
+        isShowingStorageError = true
     }
 }
 
 #Preview {
-    GoalsListView()
+    GoalsListView(
+        repository: PreviewGoalRepository()
+    )
         .modelContainer(
             for: Goal.self,
             inMemory: true
