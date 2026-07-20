@@ -6,63 +6,19 @@ struct DashboardView: View {
     @Query(sort: \Goal.title)
     private var goals: [Goal]
 
-    private var totalGoals: Int {
-        goals.count
-    }
-
-    private var completedGoals: Int {
-        goals.filter { goal in
-            goal.isCompleted
-        }
-        .count
-    }
-
-    private var activeGoals: Int {
-        totalGoals - completedGoals
-    }
-
-    private var completionPercentage: Int {
-        guard totalGoals > 0 else {
-            return 0
-        }
-
-        let percentage =
-            Double(completedGoals) /
-            Double(totalGoals) *
-            100
-
-        return Int(percentage.rounded())
-    }
-
-    private var averageProgress: Int {
-        guard !goals.isEmpty else {
-            return 0
-        }
-
-        let totalProgress = goals.reduce(0.0) {
-            partialResult,
-            goal in
-
-            partialResult + goal.progress
-        }
-
-        let average =
-            totalProgress /
-            Double(goals.count) *
-            100
-
-        return Int(average.rounded())
+    private var statistics: GoalStatistics {
+        GoalStatistics(goals: goals)
     }
 
     private var statusData: [GoalStatusData] {
         [
             GoalStatusData(
                 name: "Active",
-                count: activeGoals
+                count: statistics.active
             ),
             GoalStatusData(
                 name: "Completed",
-                count: completedGoals
+                count: statistics.completed
             )
         ]
     }
@@ -105,25 +61,25 @@ struct DashboardView: View {
         ) {
             DashboardCard(
                 title: "Total",
-                value: "\(totalGoals)",
+                value: "\(statistics.total)",
                 systemImage: "target"
             )
 
             DashboardCard(
                 title: "Active",
-                value: "\(activeGoals)",
+                value: "\(statistics.active)",
                 systemImage: "hourglass"
             )
 
             DashboardCard(
                 title: "Completed",
-                value: "\(completedGoals)",
+                value: "\(statistics.completed)",
                 systemImage: "checkmark.circle.fill"
             )
 
             DashboardCard(
                 title: "Average",
-                value: "\(averageProgress)%",
+                value: "\(statistics.averageProgress)%",
                 systemImage: "chart.line.uptrend.xyaxis"
             )
         }
@@ -137,14 +93,14 @@ struct DashboardView: View {
 
                 Spacer()
 
-                Text("\(completionPercentage)%")
+                Text("\(statistics.completionPercentage)%")
                     .font(.headline)
                     .monospacedDigit()
             }
 
             ProgressView(
-                value: Double(completedGoals),
-                total: Double(max(totalGoals, 1))
+                value: Double(statistics.completed),
+                total: Double(max(statistics.total, 1))
             )
         }
         .padding()
@@ -183,7 +139,7 @@ struct DashboardView: View {
                 }
             }
             .chartYScale(
-                domain: 0...max(totalGoals, 1)
+                domain: 0...max(statistics.total, 1)
             )
             .chartLegend(position: .bottom)
             .frame(height: 240)
@@ -191,7 +147,7 @@ struct DashboardView: View {
                 "Goal status chart"
             )
             .accessibilityValue(
-                "\(activeGoals) active and \(completedGoals) completed goals"
+                "\(statistics.active) active and \(statistics.completed) completed goals"
             )
         }
         .padding()

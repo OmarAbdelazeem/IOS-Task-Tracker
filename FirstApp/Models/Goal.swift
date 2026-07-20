@@ -28,6 +28,10 @@ final class Goal {
     }
 
     var isCompleted: Bool {
-        count >= target
+        guard target > 0 else {
+            return false
+        }
+
+        return count >= target
     }
 }
