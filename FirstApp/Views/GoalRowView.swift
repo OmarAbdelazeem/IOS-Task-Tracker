@@ -4,12 +4,26 @@ import SwiftData
 struct GoalRowView: View {
     let goal: Goal
 
-    private var accessibilityStatus: String {
+    private var accessibilitySummary:
+        LocalizedStringResource {
+
         if goal.isCompleted {
-            return "Completed"
+            return """
+            Current count \(goal.count), \
+            target \(goal.target), completed
+            """
         }
 
-        return "\(max(goal.target - goal.count, 0)) remaining"
+        let remaining = max(
+            goal.target - goal.count,
+            0
+        )
+
+        return """
+        Current count \(goal.count), \
+        target \(goal.target), \
+        \(remaining) remaining
+        """
     }
 
     var body: some View {
@@ -45,7 +59,7 @@ struct GoalRowView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(goal.title)
         .accessibilityValue(
-            "\(goal.count) of \(goal.target). \(accessibilityStatus)"
+            Text(accessibilitySummary)
         )
     }
 }

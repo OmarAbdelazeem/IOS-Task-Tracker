@@ -93,7 +93,11 @@ final class FirstAppUITests: XCTestCase {
         )
 
         detailTitleField.tap()
-        detailTitleField.typeText(" Daily")
+        detailTitleField.typeKey(
+            "a",
+            modifierFlags: .command
+        )
+        detailTitleField.typeText("Meditate Daily")
 
         let increaseButton =
             app.buttons["goalDetailIncreaseButton"]

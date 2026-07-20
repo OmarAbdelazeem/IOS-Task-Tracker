@@ -160,7 +160,12 @@ struct DashboardView: View {
                 "Goal status chart"
             )
             .accessibilityValue(
-                "\(statistics.active) active and \(statistics.completed) completed goals"
+                Text(
+                    """
+                    \(statistics.active) active goals and \
+                    \(statistics.completed) completed goals
+                    """
+                )
             )
         }
         .padding()

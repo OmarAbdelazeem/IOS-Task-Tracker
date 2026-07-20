@@ -41,9 +41,16 @@ final class DefaultGoalService:
         draft: GoalDraft
     ) async throws {
         guard let goal = draft.makeGoal() else {
+            let message =
+                draft.validationMessage.map {
+                    String(localized: $0)
+                }
+                ?? String(
+                    localized: "The goal is invalid."
+                )
+
             throw GoalRepositoryError.invalidDraft(
-                draft.validationMessage
-                    ?? "The goal is invalid."
+                message
             )
         }
 
@@ -85,9 +92,16 @@ final class DefaultGoalService:
         with draft: GoalDraft
     ) async throws {
         guard draft.isValid else {
+            let message =
+                draft.validationMessage.map {
+                    String(localized: $0)
+                }
+                ?? String(
+                    localized: "The goal is invalid."
+                )
+
             throw GoalRepositoryError.invalidDraft(
-                draft.validationMessage
-                    ?? "The goal is invalid."
+                message
             )
         }
 

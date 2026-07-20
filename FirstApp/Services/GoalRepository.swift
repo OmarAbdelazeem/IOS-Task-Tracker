@@ -42,9 +42,17 @@ final class SwiftDataGoalRepository: GoalRepository {
         with draft: GoalDraft
     ) throws {
         guard draft.apply(to: goal) else {
+            let message =
+                draft.validationMessage.map {
+                    String(localized: $0)
+                }
+                ?? String(
+                    localized:
+                        "The goal contains invalid values."
+                )
+
             throw GoalRepositoryError.invalidDraft(
-                draft.validationMessage
-                    ?? "The goal contains invalid values."
+                message
             )
         }
 

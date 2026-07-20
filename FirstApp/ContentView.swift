@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct ContentView: View {
     let goalService: any GoalServicing
@@ -42,5 +43,24 @@ struct ContentView: View {
     .modelContainer(
         for: Goal.self,
         inMemory: true
+    )
+}
+
+#Preview("Arabic") {
+    ContentView(
+        goalService:
+            PreviewGoalService()
+    )
+    .modelContainer(
+        for: Goal.self,
+        inMemory: true
+    )
+    .environment(
+        \.locale,
+        Locale(identifier: "ar")
+    )
+    .environment(
+        \.layoutDirection,
+        .rightToLeft
     )
 }

@@ -206,14 +206,17 @@ struct GoalFormView: View {
     }
 
     private func validationSection(
-        message: String
+        message: LocalizedStringResource
     ) -> some View {
         Section {
-            Label(
-                message,
-                systemImage:
-                    "exclamationmark.triangle.fill"
-            )
+            Label {
+                Text(message)
+            } icon: {
+                Image(
+                    systemName:
+                        "exclamationmark.triangle.fill"
+                )
+            }
             .font(.footnote)
             .foregroundStyle(.red)
         }

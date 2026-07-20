@@ -2,23 +2,45 @@ import SwiftUI
 import SwiftData
 import Foundation
 
-private enum GoalFilter: String, CaseIterable, Identifiable {
-    case all = "All"
-    case active = "Active"
-    case completed = "Completed"
+private enum GoalFilter: CaseIterable, Identifiable {
+    case all
+    case active
+    case completed
 
     var id: Self {
         self
     }
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .all:
+            return "All"
+        case .active:
+            return "Active"
+        case .completed:
+            return "Completed"
+        }
+    }
 }
 
-private enum GoalSortOption: String, CaseIterable, Identifiable {
-    case name = "Name"
-    case progress = "Progress"
-    case target = "Target"
+private enum GoalSortOption: CaseIterable, Identifiable {
+    case name
+    case progress
+    case target
 
     var id: Self {
         self
+    }
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .name:
+            return "Name"
+        case .progress:
+            return "Progress"
+        case .target:
+            return "Target"
+        }
     }
 }
 
@@ -149,7 +171,7 @@ struct GoalsListView: View {
                             selection: $selectedFilter
                         ) {
                             ForEach(GoalFilter.allCases) { filter in
-                                Text(filter.rawValue)
+                                Text(filter.title)
                                     .tag(filter)
                             }
                         }
@@ -159,7 +181,7 @@ struct GoalsListView: View {
                             selection: $selectedSort
                         ) {
                             ForEach(GoalSortOption.allCases) { option in
-                                Text(option.rawValue)
+                                Text(option.title)
                                     .tag(option)
                             }
                         }

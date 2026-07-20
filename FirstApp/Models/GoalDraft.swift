@@ -65,7 +65,7 @@ struct GoalDraft: Equatable {
             : trimmedNotes
     }
 
-    var validationMessage: String? {
+    var validationMessage: LocalizedStringResource? {
         if trimmedTitle.isEmpty {
             return "Enter a goal name."
         }
@@ -100,7 +100,7 @@ struct GoalDraft: Equatable {
         target > 0 && count >= target
     }
 
-    var statusMessage: String {
+    var statusMessage: LocalizedStringResource {
         if target <= 0 {
             return "Invalid target"
         }

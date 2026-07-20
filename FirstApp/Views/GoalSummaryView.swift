@@ -20,24 +20,52 @@ struct GoalSummaryView: View {
         )
     }
 
-    private var statusMessage: String {
+    private var statusMessage:
+        LocalizedStringResource {
+
+        if target <= 0 {
+            return "Invalid target"
+        }
+
         if count == 0 {
             return "Start tapping!"
-        } else if count < target {
-            return "\(target - count) remaining"
-        } else if count < target * 2 {
-            return "Target reached!"
-        } else {
-            return "Double target reached!"
         }
+
+        if count < target {
+            return "\(target - count) remaining"
+        }
+
+        if count < target * 2 {
+            return "Target reached!"
+        }
+
+        return "Double target reached!"
     }
 
-    private var accessibilityStatus: String {
-        if isTargetReached {
-            return "Completed"
+    private var accessibilitySummary:
+        LocalizedStringResource {
+
+        if target <= 0 {
+            return """
+            Current count \(count), invalid target
+            """
         }
 
-        return "\(max(target - count, 0)) remaining"
+        if isTargetReached {
+            return """
+            Current count \(count), target \(target), completed
+            """
+        }
+
+        let remaining = max(
+            target - count,
+            0
+        )
+
+        return """
+        Current count \(count), target \(target), \
+        \(remaining) remaining
+        """
     }
 
     var body: some View {
@@ -66,25 +94,25 @@ struct GoalSummaryView: View {
                     vertical: true
                 )
 
-            VStack(spacing: 2) {
-                Text("\(count)")
-                    .font(
-                        .system(
-                            .largeTitle,
-                            design: .rounded,
-                            weight: .bold
-                        )
+            Text("\(count) taps")
+                .font(
+                    .system(
+                        .largeTitle,
+                        design: .rounded,
+                        weight: .bold
                     )
-                    .monospacedDigit()
-                    .contentTransition(
-                        .numericText(value: Double(count))
+                )
+                .monospacedDigit()
+                .multilineTextAlignment(.center)
+                .contentTransition(
+                    .numericText(
+                        value: Double(count)
                     )
-
-                Text(count == 1 ? "tap" : "taps")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-            }
-            .animation(.snappy, value: count)
+                )
+                .animation(
+                    .snappy,
+                    value: count
+                )
 
             Text("Target: \(target)")
                 .foregroundStyle(.secondary)
@@ -115,7 +143,7 @@ struct GoalSummaryView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
         .accessibilityValue(
-            "\(count) of \(target) taps. \(accessibilityStatus)"
+            Text(accessibilitySummary)
         )
     }
 }

@@ -20,10 +20,13 @@ enum GoalReminderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return """
-            Notifications are disabled. Enable them \
-            in the iPhone Settings app to use reminders.
-            """
+            return String(
+                localized: """
+                Notifications are disabled. Enable \
+                them in the iPhone Settings app to \
+                use reminders.
+                """
+            )
         }
     }
 }
@@ -53,8 +56,14 @@ final class UserNotificationGoalReminderScheduler:
         let content =
             UNMutableNotificationContent()
 
-        content.title = "Goal Reminder"
-        content.body = "Make progress on \(title)."
+        content.title = String(
+            localized: "Goal Reminder"
+        )
+
+        content.body = String(
+            localized:
+                "Make progress on \(title)."
+        )
         content.sound = .default
 
         let components =

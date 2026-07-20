@@ -121,16 +121,20 @@ struct GoalStatisticsTests {
 
 struct GoalDraftTests {
     @Test("Rejects an empty title")
-    func rejectsEmptyTitle() {
+    func rejectsEmptyTitle() throws {
         let draft = GoalDraft(
             title: "   ",
             target: 5
         )
 
         #expect(!draft.isValid)
+        let message = try #require(
+            draft.validationMessage
+        )
+
         #expect(
-            draft.validationMessage ==
-            "Enter a goal name."
+            String(localized: message)
+            == "Enter a goal name."
         )
         #expect(draft.makeGoal() == nil)
     }
@@ -202,7 +206,10 @@ struct GoalDraftTests {
         )
         #expect(!draft.isCompleted)
         #expect(
-            draft.statusMessage ==
+            String(
+                localized:
+                    draft.statusMessage
+            ) ==
             "6 remaining"
         )
     }
