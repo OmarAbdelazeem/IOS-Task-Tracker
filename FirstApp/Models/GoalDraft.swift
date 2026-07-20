@@ -7,19 +7,22 @@ struct GoalDraft: Equatable {
 
     var reminderEnabled: Bool
     var reminderTime: Date
+    var notes: String
 
     init(
         title: String = "",
         target: Int = 5,
         count: Int = 0,
         reminderEnabled: Bool = false,
-        reminderTime: Date = GoalDraft.defaultReminderTime
+        reminderTime: Date = GoalDraft.defaultReminderTime,
+        notes: String = ""
     ) {
         self.title = title
         self.target = target
         self.count = count
         self.reminderEnabled = reminderEnabled
         self.reminderTime = reminderTime
+        self.notes = notes
     }
 
     init(goal: Goal) {
@@ -32,6 +35,8 @@ struct GoalDraft: Equatable {
         reminderTime =
             goal.reminderTime
             ?? GoalDraft.defaultReminderTime
+
+        notes = goal.notes ?? ""
     }
 
     static var defaultReminderTime: Date {
@@ -47,6 +52,17 @@ struct GoalDraft: Equatable {
         title.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
+    }
+
+    var normalizedNotes: String? {
+        let trimmedNotes =
+            notes.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+
+        return trimmedNotes.isEmpty
+            ? nil
+            : trimmedNotes
     }
 
     var validationMessage: String? {
@@ -112,7 +128,8 @@ struct GoalDraft: Equatable {
             reminderTime:
                 reminderEnabled
                 ? reminderTime
-                : nil
+                : nil,
+            notes: normalizedNotes
         )
     }
 
@@ -130,6 +147,8 @@ struct GoalDraft: Equatable {
             reminderEnabled
             ? reminderTime
             : nil
+
+        goal.notes = normalizedNotes
 
         return true
     }

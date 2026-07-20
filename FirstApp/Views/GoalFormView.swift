@@ -135,6 +135,16 @@ struct GoalFormView: View {
                     ? "goalTargetStepper"
                     : "goalDetailTargetStepper"
             )
+
+            TextField(
+                "Notes (optional)",
+                text: $draft.notes,
+                axis: .vertical
+            )
+            .lineLimit(3...6)
+            .accessibilityIdentifier(
+                "goalNotesField"
+            )
         }
     }
 

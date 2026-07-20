@@ -98,6 +98,10 @@ final class FirstAppUITests: XCTestCase {
         let increaseButton =
             app.buttons["goalDetailIncreaseButton"]
 
+        if !increaseButton.waitForExistence(timeout: 1) {
+            app.swipeUp()
+        }
+
         XCTAssertTrue(
             increaseButton.waitForExistence(
                 timeout: 3

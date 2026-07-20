@@ -14,14 +14,19 @@ struct FirstAppApp: App {
                 "--ui-testing"
             )
 
+        let schema = Schema(
+            versionedSchema: GoalSchemaV2.self
+        )
+
         let configuration = ModelConfiguration(
             isStoredInMemoryOnly: isRunningUITests
         )
 
         do {
             let container = try ModelContainer(
-                for: Goal.self,
-                configurations: configuration
+                for: schema,
+                migrationPlan: GoalMigrationPlan.self,
+                configurations: [configuration]
             )
 
             modelContainer = container
